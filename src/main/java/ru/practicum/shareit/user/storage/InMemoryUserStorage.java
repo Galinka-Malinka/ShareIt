@@ -9,10 +9,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.ValidationException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
     private final UserMapper mapper;
 
     @Override
-    public Optional<User> addUser(UserDto userDto) {
+    public UserDto addUser(UserDto userDto) {
         for (User existingUser : users.values()) {
             if (existingUser.getEmail().equals(userDto.getEmail())) {
                 throw new RuntimeException("Данный email уже используется");
@@ -34,18 +31,16 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ValidationException("Не указаны все необходимые данные для пользователя");
         }
 
-        User newUser = mapper.convertUserDtoToUser(++id, userDto);
+        User newUser = mapper.toUser(++id, userDto);
 
         this.users.put(newUser.getId(), newUser);
         log.debug("Добавление пользователя: {}", newUser);
-        return Optional.of(newUser);
+        return mapper.toUserDto(newUser);
     }
 
     @Override
-    public Optional<User> updateUser(Long userId, UserDto userDto) {
-        if (!users.containsKey(userId)) {
-            throw new NotFoundException("Пользователя с id = " + userId + " не существует");
-        }
+    public UserDto updateUser(Long userId, UserDto userDto) {
+        checkUserAvailability(userId);
         User user = users.get(userId);
 
         for (User existingUser : users.values()) {
@@ -60,32 +55,38 @@ public class InMemoryUserStorage implements UserStorage {
             userDto.setEmail(user.getEmail());
         }
 
-        User newUser = mapper.convertUserDtoToUser(userId, userDto);
+        User newUser = mapper.toUser(userId, userDto);
 
         this.users.replace(userId, newUser);
         log.debug("Обновление пользователя: {}", newUser);
-        return Optional.of(newUser);
+        return mapper.toUserDto(newUser);
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        if (!users.containsKey(userId)) {
-            throw new NotFoundException("Пользователя с id = " + userId + " не существует");
+    public UserDto getUserById(Long userId) {
+        checkUserAvailability(userId);
+        return mapper.toUserDto(users.get(userId));
+    }
+
+    @Override
+    public Collection<UserDto> getUsers() {
+        List<UserDto> userDtoList = new ArrayList<>();
+        for (User user : users.values()) {
+            userDtoList.add(mapper.toUserDto(user));
         }
-        return Optional.of(users.get(userId));
-    }
-
-    @Override
-    public Collection<User> getUsers() {
-        return users.values();
+        return userDtoList;
     }
 
     @Override
     public void deleteUserById(Long userId) {
+        checkUserAvailability(userId);
+        users.remove(userId);
+        log.debug("Пользователь с id {} удалён", userId);
+    }
+
+    public void checkUserAvailability(Long userId) {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Пользователя с id = " + userId + " не существует");
         }
-        users.remove(userId);
-        log.debug("Пользователь с id {} удалён", userId);
     }
 }

@@ -128,7 +128,6 @@ public class ShareItApplicationTests {
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Item"))
                 .andExpect(jsonPath("$.description").value("Description for Item"))
-                .andExpect(jsonPath("$.ownerId").value("1"))
                 .andExpect(jsonPath("$.available").value("true"));
     }
 
@@ -151,7 +150,6 @@ public class ShareItApplicationTests {
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("UpdatedItem"))
                 .andExpect(jsonPath("$.description").value("Description for updatedItem"))
-                .andExpect(jsonPath("$.ownerId").value("1"))
                 .andExpect(jsonPath("$.available").value("false"));
 
         mockMvc.perform(get("/items/1"))

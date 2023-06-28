@@ -6,11 +6,19 @@ import ru.practicum.shareit.user.model.User;
 
 @Component
 public class UserMapper {
-    public User convertUserDtoToUser(Long userId, UserDto userDto) {
+    public User toUser(Long userId, UserDto userDto) {
         return User.builder()
                 .id(userId)
                 .name(userDto.getName())
                 .email(userDto.getEmail())
+                .build();
+    }
+
+    public UserDto toUserDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
                 .build();
     }
 }

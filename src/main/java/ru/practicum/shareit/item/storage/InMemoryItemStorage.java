@@ -20,7 +20,7 @@ public class InMemoryItemStorage implements ItemStorage {
     private final Map<Long, Map<Long, Item>> items = new HashMap<>();
 
     @Override
-    public Optional<Item> addItem(Long userId, ItemDto itemDto) {
+    public ItemDto addItem(Long userId, ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
             throw new ValidationException("Для добавления предмета необходимо указать его название");
         } else if (itemDto.getDescription() == null) {
@@ -48,11 +48,11 @@ public class InMemoryItemStorage implements ItemStorage {
             items.put(userId, mapUserItems);
         }
         log.debug("Добавлен предмет {}", newItem);
-        return Optional.of(newItem);
+        return mapper.toItemDto(newItem);
     }
 
     @Override
-    public Optional<Item> updateItem(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         if (!items.containsKey(userId)) {
             throw new NotFoundException("У пользователя с id " + userId + " нет предметов для шеринга");
         }
@@ -71,7 +71,7 @@ public class InMemoryItemStorage implements ItemStorage {
                     itemDto.setName(item.getName());
                 }
 
-                Item itemForUpdating = mapper.convertItemDtoToItem(userId, itemDto, itemId);
+                Item itemForUpdating = mapper.toItem(userId, itemDto, itemId);
 
                 items.get(userId).replace(itemId, itemForUpdating);
                 updatedItem = Optional.of(itemForUpdating);
@@ -82,22 +82,22 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new NotFoundException("У пользователя с id " + userId +
                     "нет предмета для обновления с id " + itemId);
         }
-        return updatedItem;
+        return mapper.toItemDto(updatedItem.get());
     }
 
     @Override
-    public Optional<ItemDto> getItemById(Long itemId) {
+    public ItemDto getItemById(Long itemId) {
         Optional<ItemDto> optionalItemDto = Optional.empty();
         for (Map<Long, Item> itemMap : items.values()) {
             if (itemMap.containsKey(itemId)) {
-                ItemDto itemDto = mapper.convertItemToItemDto(itemMap.get(itemId));
+                ItemDto itemDto = mapper.toItemDto(itemMap.get(itemId));
                 optionalItemDto = Optional.of(itemDto);
             }
         }
         if (optionalItemDto.isEmpty()) {
             throw new NotFoundException("Предмета с Id " + itemId + " не обнаружено");
         }
-        return optionalItemDto;
+        return optionalItemDto.get();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class InMemoryItemStorage implements ItemStorage {
         }
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (Item item : items.get(userId).values()) {
-            ItemDto itemDto = mapper.convertItemToItemDto(item);
+            ItemDto itemDto = mapper.toItemDto(item);
             itemDtoList.add(itemDto);
         }
         return itemDtoList;
@@ -124,10 +124,10 @@ public class InMemoryItemStorage implements ItemStorage {
             for (Item item : listItemsOwner) {
                 if (item.getName().toLowerCase().contains(text.toLowerCase())
                         && item.isAvailable()) {
-                    itemDtoSet.add(mapper.convertItemToItemDto(item));
+                    itemDtoSet.add(mapper.toItemDto(item));
                 } else if (item.getDescription().toLowerCase().contains(text.toLowerCase())
                         && item.isAvailable()) {
-                    itemDtoSet.add(mapper.convertItemToItemDto(item));
+                    itemDtoSet.add(mapper.toItemDto(item));
                 }
             }
         }

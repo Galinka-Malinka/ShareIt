@@ -11,6 +11,7 @@ import javax.validation.constraints.Email;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
+    Long id;
     String name;
     @Email(message = "Не верный формат email")
     String email;
