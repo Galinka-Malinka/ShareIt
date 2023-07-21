@@ -1,8 +1,10 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -19,8 +21,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User user = userStorage.save(UserMapper.toUser(userDto));
-        return UserMapper.toUserDto(user);
+        try {
+            User user = userStorage.save(UserMapper.toUser(userDto));
+            return UserMapper.toUserDto(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new AlreadyExistsException(String.format(
+                    "Пользователь с %s уже зарегистрирован", userDto.getEmail()
+            ));
+        }
     }
 
     @Override
@@ -36,8 +44,13 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() != null) {
             foundUser.setEmail(user.getEmail());
         }
-
-        return UserMapper.toUserDto(userStorage.save(foundUser));
+        try {
+            return UserMapper.toUserDto(userStorage.save(foundUser));
+        } catch (DataIntegrityViolationException e) {
+            throw new AlreadyExistsException(String.format(
+                    "Пользователь с %s уже зарегистрирован", userDto.getEmail()
+            ));
+        }
     }
 
     @Transactional(readOnly = true)
