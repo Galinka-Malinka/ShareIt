@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -14,6 +15,7 @@ import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(userStorage.save(user));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto getUserById(Long userId) {
         User user = userStorage.findById(userId).orElseThrow(() ->
@@ -57,6 +60,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Collection<UserDto> getUsers() {
         return UserMapper.toUserDtoList(userStorage.findAll());
