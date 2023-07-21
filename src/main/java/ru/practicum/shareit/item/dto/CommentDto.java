@@ -5,18 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.sql.Timestamp;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDto {
+public class CommentDto {
     Long id;
 
-    String name;
+    String text;
 
-    String description;
+    Long itemId;
 
-    Boolean available;
+    String authorName;
+
+    Timestamp created;
 }

@@ -4,14 +4,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.dto.BookingDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDto {
+public class ItemDetailedDto {
     Long id;
 
     String name;
@@ -19,4 +19,10 @@ public class ItemDto {
     String description;
 
     Boolean available;
+
+    BookingDto lastBooking;
+
+    BookingDto nextBooking;
+
+    List<CommentDto> comments;
 }

@@ -1,28 +1,27 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.sql.Timestamp;
-
-/**
- * TODO Sprint add-bookings.
- */
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingDto {
-
+public class BookingForAnswerDto {
     Long id;
+    @JsonProperty("item")
+    ItemDto itemDto;
 
-    Long itemId;
-
-    Long bookerId;
+    @JsonProperty("booker")
+    UserDto bookerDto;
 
     Status status;
 
