@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             return UserMapper.toUserDto(userStorage.save(user));
-        } catch (DataIntegrityViolationException e) {
+        } catch (ConstraintViolationException e) {
             throw new RuntimeException("Пользователь с email " + userDto.getEmail() + " уже зарегистрирован");
         }
     }
