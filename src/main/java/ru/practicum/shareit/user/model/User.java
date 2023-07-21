@@ -17,9 +17,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class User {
 
     @Id

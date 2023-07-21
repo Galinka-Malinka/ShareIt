@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         try {
-            return UserMapper.toUserDto(userStorage.save(user));
+            return UserMapper.toUserDto(userStorage.saveAndFlush(user));
         } catch (ConstraintViolationException e) {
             throw new RuntimeException("Пользователь с email " + userDto.getEmail() + " уже зарегистрирован");
         }
