@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.validation.ValidationException;
 import java.util.Collection;
 
 @Service
@@ -21,10 +20,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        if (userDto.getName() == null || userDto.getEmail() == null) {
-            throw new ValidationException("Не указаны все необходимые данные для пользователя");
-        }
-
         try {
             return UserMapper.toUserDto(userStorage.saveAndFlush(UserMapper.toUser(userDto)));
         } catch (ConstraintViolationException e) {
