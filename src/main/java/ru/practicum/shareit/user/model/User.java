@@ -16,8 +16,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 
-@EqualsAndHashCode(exclude = {"name", "email"})
-
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

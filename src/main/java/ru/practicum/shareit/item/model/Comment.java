@@ -25,6 +25,7 @@ public class Comment {
     String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
