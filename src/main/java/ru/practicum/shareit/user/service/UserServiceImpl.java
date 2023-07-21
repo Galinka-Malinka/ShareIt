@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(UserDto userDto) {
         try {
-            User user = userStorage.save(UserMapper.toUser(userDto));
+            User user = userStorage.saveAndFlush(UserMapper.toUser(userDto));
             return UserMapper.toUserDto(user);
         } catch (DataIntegrityViolationException e) {
             throw new AlreadyExistsException(String.format(
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
             foundUser.setEmail(user.getEmail());
         }
         try {
-            return UserMapper.toUserDto(userStorage.save(foundUser));
+            return UserMapper.toUserDto(userStorage.saveAndFlush(foundUser));
         } catch (DataIntegrityViolationException e) {
             throw new AlreadyExistsException(String.format(
                     "Пользователь с %s уже зарегистрирован", userDto.getEmail()
