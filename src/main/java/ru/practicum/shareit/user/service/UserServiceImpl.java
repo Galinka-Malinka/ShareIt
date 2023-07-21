@@ -25,13 +25,8 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Не указаны все необходимые данные для пользователя");
         }
 
-        User user = User.builder()
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
-
         try {
-            return UserMapper.toUserDto(userStorage.saveAndFlush(user));
+            return UserMapper.toUserDto(userStorage.saveAndFlush(UserMapper.toUser(userDto)));
         } catch (ConstraintViolationException e) {
             throw new RuntimeException("Пользователь с email " + userDto.getEmail() + " уже зарегистрирован");
         }

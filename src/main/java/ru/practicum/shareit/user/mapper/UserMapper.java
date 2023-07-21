@@ -12,9 +12,8 @@ import java.util.List;
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
-    public static User toUser(Long userId, UserDto userDto) {
+    public static User toUser(UserDto userDto) {
         return User.builder()
-                .id(userId)
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();
