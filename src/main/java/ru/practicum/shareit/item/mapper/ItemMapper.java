@@ -28,9 +28,8 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItem(User user, ItemDto itemDto, Long itemId) {
+    public static Item toItem(User user, ItemDto itemDto) {
         return Item.builder()
-                .id(itemId)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .owner(user)
@@ -67,7 +66,6 @@ public class ItemMapper {
 
     public static Comment toComment(CommentDto commentDto, User author, Item item) {
         return Comment.builder()
-                .id(commentDto.getId())
                 .text(commentDto.getText())
                 .item(item)
                 .author(author)

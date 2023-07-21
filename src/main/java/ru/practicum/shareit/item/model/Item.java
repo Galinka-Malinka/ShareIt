@@ -5,8 +5,6 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * TODO Sprint add-controllers.
@@ -25,12 +23,9 @@ public class Item {
     Long id;
 
     @Column(name = "name", nullable = false)
-    @NotNull(message = "Название предмету не заданно")
-    @NotBlank(message = "Название предмета не может состоять из пустой строки")
     String name;
 
     @Column(name = "description", nullable = false)
-    @NotNull(message = "Необходимо добавить описание предмета")
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,6 +33,5 @@ public class Item {
     User owner;
 
     @Column(name = "is_available", nullable = false)
-    @NotNull(message = "Необходимо указать статус возможности бронирования предмета")
     boolean available;
 }

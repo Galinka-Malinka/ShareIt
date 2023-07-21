@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data
@@ -13,6 +15,8 @@ import java.sql.Timestamp;
 public class CommentDto {
     Long id;
 
+    @NotNull(message = "Необходимо добавить содержимое комментария")
+    @NotBlank(message = "Комментарий не может состоять из пустой строки")
     String text;
 
     Long itemId;

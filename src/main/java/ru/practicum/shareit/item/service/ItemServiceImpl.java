@@ -51,12 +51,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
 
-        Item item = Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .owner(user)
-                .available(itemDto.getAvailable())
-                .build();
+        Item item = ItemMapper.toItem(user, itemDto);
 
         return ItemMapper.toItemDto(itemStorage.save(item));
     }
@@ -64,10 +59,14 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
-        userStorage.findById(userId).orElseThrow(() ->
+        User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         Item item = itemStorage.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Предмет с id " + itemId + " не найден"));
+
+        if (!item.getOwner().equals(user)) {
+            throw new NotFoundException("У пользователя с id " + userId + " нет предмета с id " + itemId);
+        }
 
         if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             item.setName(itemDto.getName());

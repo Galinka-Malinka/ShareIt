@@ -73,13 +73,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Дата начала аренды должна отличаться от даты окончания аренды");
         }
 
-        Booking booking = Booking.builder()
-                .item(item)
-                .booker(user)
-                .status(Status.WAITING)
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .build();
+        Booking booking = BookingMapper.toBooking(bookingDto, item, user, Status.WAITING);
 
         return BookingMapper.toBookingForAnswerDto(bookingStorage.save(booking));
     }

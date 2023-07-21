@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -20,26 +19,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        try {
-            return UserMapper.toUserDto(userStorage.saveAndFlush(UserMapper.toUser(userDto)));
-        } catch (ConstraintViolationException e) {
-            throw new RuntimeException("Пользователь с email " + userDto.getEmail() + " уже зарегистрирован");
-        }
+        User user = userStorage.save(UserMapper.toUser(userDto));
+        return UserMapper.toUserDto(user);
     }
 
     @Override
     public UserDto updateUser(Long userId, UserDto userDto) {
-        User user = userStorage.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователь с id " + userId + " не найден"));
+        User foundUser = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id " + userId));
 
-        if (userDto.getName() != null && !userDto.getName().isBlank()) {
-            user.setName(userDto.getName());
+        User user = UserMapper.toUser(userDto);
+
+        if (user.getName() != null) {
+            foundUser.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            foundUser.setEmail(user.getEmail());
         }
 
-        if ((userDto.getEmail() != null && !userDto.getEmail().isBlank())) {
-            user.setEmail(userDto.getEmail());
-        }
-        return UserMapper.toUserDto(userStorage.save(user));
+        return UserMapper.toUserDto(userStorage.save(foundUser));
     }
 
     @Transactional(readOnly = true)
