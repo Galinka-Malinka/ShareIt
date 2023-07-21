@@ -21,9 +21,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+//        User user = UserMapper.toUser(userDto);
+//        try {
+//            return UserMapper.toUserDto(userStorage.saveAndFlush(user));
+//        } catch (DataIntegrityViolationException e) {
+//            throw new AlreadyExistsException(String.format(
+//                    "Пользователь с %s уже зарегистрирован", userDto.getEmail()
+//            ));
+//        }
+
         try {
-            return UserMapper.toUserDto(userStorage.saveAndFlush(user));
+            return UserMapper.toUserDto(
+                    userStorage.save(UserMapper.toUser(userDto))
+            );
         } catch (DataIntegrityViolationException e) {
             throw new AlreadyExistsException(String.format(
                     "Пользователь с %s уже зарегистрирован", userDto.getEmail()
@@ -33,19 +43,41 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(Long userId, UserDto userDto) {
-        User foundUser = userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id " + userId));
+//        User foundUser = userStorage.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id " + userId));
+//
+//        User user = UserMapper.toUser(userDto);
+//
+//        if (user.getName() != null) {
+//            foundUser.setName(user.getName());
+//        }
+//        if (user.getEmail() != null) {
+//            foundUser.setEmail(user.getEmail());
+//        }
+//        try {
+//            return UserMapper.toUserDto(userStorage.saveAndFlush(foundUser));
+//        } catch (DataIntegrityViolationException e) {
+//            throw new AlreadyExistsException(String.format(
+//                    "Пользователь с %s уже зарегистрирован", userDto.getEmail()
+//            ));
+//        }
 
-        User user = UserMapper.toUser(userDto);
+        User user = userStorage.findById(userId).orElseThrow(
+                () -> new NotFoundException("Пользователь не найден")
+        );
 
-        if (user.getName() != null) {
-            foundUser.setName(user.getName());
+        if (userDto.getName() != null && !userDto.getName().isBlank()) {
+            user.setName(userDto.getName());
         }
-        if (user.getEmail() != null) {
-            foundUser.setEmail(user.getEmail());
+
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
+            user.setEmail(userDto.getEmail());
         }
+
         try {
-            return UserMapper.toUserDto(userStorage.saveAndFlush(foundUser));
+            return UserMapper.toUserDto(
+                    userStorage.saveAndFlush(user)
+            );
         } catch (DataIntegrityViolationException e) {
             throw new AlreadyExistsException(String.format(
                     "Пользователь с %s уже зарегистрирован", userDto.getEmail()
