@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId,  @RequestBody UserDto userDto)
+    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto)
             throws ValidationException {
         return userService.updateUser(userId, userDto);
     }
