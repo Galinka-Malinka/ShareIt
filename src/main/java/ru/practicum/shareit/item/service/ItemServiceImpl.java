@@ -19,8 +19,10 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import javax.validation.ValidationException;
-import java.sql.Timestamp;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,13 +104,9 @@ public class ItemServiceImpl implements ItemService {
             bookings = bookings.stream().filter(e -> !e.getStatus().equals(Status.REJECTED))
                     .collect(Collectors.toList());
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.HOUR, 3);
-            Timestamp timeNow = new Timestamp(calendar.getTimeInMillis());
-
+            LocalDateTime timeNow = LocalDateTime.now();
             for (Booking booking : bookings) {
-                if (booking.getStart().after(timeNow)) {
+                if (booking.getStart().isAfter(timeNow)) {
                     nextBooking = booking;
                 } else {
                     lastBooking = booking;
@@ -133,13 +131,10 @@ public class ItemServiceImpl implements ItemService {
             bookings = bookings.stream().filter(e -> !e.getStatus().equals(Status.REJECTED))
                     .collect(Collectors.toList());
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.HOUR, 3);
-            Timestamp timeNow = new Timestamp(calendar.getTimeInMillis());
+            LocalDateTime timeNow = LocalDateTime.now();
 
             for (Booking booking : bookings) {
-                if (booking.getStart().after(timeNow)) {
+                if (booking.getStart().isAfter(timeNow)) {
                     nextBooking = booking;
                 } else {
                     lastBooking = booking;
@@ -180,13 +175,9 @@ public class ItemServiceImpl implements ItemService {
                     " т.к. он не арендовал предмет с id " + itemId);
         }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, 3);
-        Timestamp timeNow = new Timestamp(calendar.getTimeInMillis());
-
+        LocalDateTime timeNow = LocalDateTime.now();
         List<Booking> bookings = bookingStorage.findByBookerIdAndItemId(userId, itemId).stream()
-                .filter(b -> b.getEnd().before(timeNow)).collect(Collectors.toList());
+                .filter(b -> b.getEnd().isBefore(timeNow)).collect(Collectors.toList());
 
         if (bookings.isEmpty()) {
             throw new ValidationException("Пользователь не может оставить комментарий," +

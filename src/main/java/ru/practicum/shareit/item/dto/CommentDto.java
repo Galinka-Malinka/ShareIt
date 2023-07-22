@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -23,5 +23,5 @@ public class CommentDto {
 
     String authorName;
 
-    Timestamp created;
+    LocalDateTime created;
 }

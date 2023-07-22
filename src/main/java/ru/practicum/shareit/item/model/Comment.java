@@ -5,8 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
@@ -34,5 +33,5 @@ public class Comment {
     User author;
 
     @Column(name = "created")
-    Timestamp created = Timestamp.from(Instant.now());
+    LocalDateTime created = LocalDateTime.now();
 }

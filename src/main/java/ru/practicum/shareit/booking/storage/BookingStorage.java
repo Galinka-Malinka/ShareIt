@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingStorage extends JpaRepository<Booking, Long> {
@@ -19,7 +19,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " and b.start <= ?2" +
             " and b.end > ?2" +
             " order by b.start desc")
-    List<Booking> findCurrentBookingsByBookerId(Long bookerId, Timestamp timeNow);
+    List<Booking> findCurrentBookingsByBookerId(Long bookerId, LocalDateTime timeNow);
 
     @Query("select b" +
             " from Booking as b" +
@@ -27,7 +27,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " where u.id = ?1" +
             " and b.end <= ?2" +
             " order by b.start desc")
-    List<Booking> findByBookerIdAndEndInPast(Long bookerId, Timestamp endTime);
+    List<Booking> findByBookerIdAndEndInPast(Long bookerId, LocalDateTime endTime);
 
     @Query("select b" +
             " from Booking as b" +
@@ -35,7 +35,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " where u.id = ?1" +
             " and b.start > ?2" +
             " order by b.start desc")
-    List<Booking> findByBookerIdAndStartInFuture(Long bookerId, Timestamp startTime);
+    List<Booking> findByBookerIdAndStartInFuture(Long bookerId, LocalDateTime startTime);
 
     @Query("select b" +
             " from Booking as b" +
@@ -61,7 +61,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " and b.start <= ?2" +
             " and b.end > ?3" +
             " order by b.start desc")
-    List<Booking> getCurrentBookingsForOwnersItems(Long userId, Timestamp startTime, Timestamp endTime);
+    List<Booking> getCurrentBookingsForOwnersItems(Long userId, LocalDateTime startTime, LocalDateTime endTime);
 
     @Query("select b" +
             " from Booking as b" +
@@ -70,7 +70,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " where o.id = ?1" +
             " and b.end <= ?2" +
             " order by b.start desc")
-    List<Booking> getPastBookingsForOwnersItems(Long userId, Timestamp endTime);
+    List<Booking> getPastBookingsForOwnersItems(Long userId, LocalDateTime endTime);
 
     @Query("select b" +
             " from Booking as b" +
@@ -79,7 +79,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             " where o.id = ?1" +
             " and b.start > ?2" +
             " order by b.start desc")
-    List<Booking> getFutureBookingsForOwnersItems(Long userId, Timestamp startTime);
+    List<Booking> getFutureBookingsForOwnersItems(Long userId, LocalDateTime startTime);
 
     @Query("select b" +
             " from Booking as b" +

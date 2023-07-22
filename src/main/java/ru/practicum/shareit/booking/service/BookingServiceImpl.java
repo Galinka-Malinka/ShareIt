@@ -16,11 +16,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import javax.validation.ValidationException;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -57,15 +54,15 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Необходимо указать датуу окончания аренды");
         }
 
-        if (bookingDto.getEnd().before(Timestamp.from(Instant.now()))) {
+        if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Окончание аренды не может быть в прошлом");
         }
 
-        if (bookingDto.getStart().before(Timestamp.from(Instant.now()))) {
+        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Начало аренды не может быть в прошлом");
         }
 
-        if (bookingDto.getStart().after(bookingDto.getEnd())) {
+        if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             throw new ValidationException("Окончание аренды не может быть раньше её начала");
         }
 
@@ -124,10 +121,7 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = new ArrayList<>();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, 3);
-        Timestamp timeNow = new Timestamp(calendar.getTimeInMillis());
+        LocalDateTime timeNow = LocalDateTime.now();
 
         switch (state) {
             case "ALL":
@@ -164,10 +158,7 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = new ArrayList<>();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, 3);
-        Timestamp timeNow = new Timestamp(calendar.getTimeInMillis());
+        LocalDateTime timeNow = LocalDateTime.now();
 
         switch (state) {
             case "ALL":

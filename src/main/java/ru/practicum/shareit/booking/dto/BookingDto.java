@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.Status;
 
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-bookings.
@@ -18,7 +18,6 @@ import java.sql.Timestamp;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDto {
-
     Long id;
 
     @NotNull
@@ -32,9 +31,9 @@ public class BookingDto {
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd 'T' HH:mm:ss")
-    Timestamp start;
+    LocalDateTime start;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    Timestamp end;
+    LocalDateTime end;
 }
