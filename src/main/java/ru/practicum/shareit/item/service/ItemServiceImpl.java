@@ -36,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
 
-    public ItemDto addItem(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemDto itemDto) {
 
         if (itemDto.getAvailable() == null) {
             throw new ValidationException("Необходимо указать статус бронирования при добавлении предмета");
@@ -60,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         Item item = itemStorage.findById(itemId).orElseThrow(() ->
@@ -86,7 +86,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDetailedDto getItemById(Long userId, Long itemId) {
+    public ItemDetailedDto getByUserIdAndItemId(Long userId, Long itemId) {
         Item item = itemStorage.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Предмет с id " + itemId + " не найден"));
 
@@ -158,6 +158,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDtoList(itemStorage.getItemOnRequest(text));
     }
 
+    @Transactional
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         if (commentDto.getText() == null || commentDto.getText().isBlank()) {

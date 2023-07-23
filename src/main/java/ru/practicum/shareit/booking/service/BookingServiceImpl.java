@@ -30,7 +30,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingForAnswerDto addBooking(Long userId, BookingDto bookingDto) {
+    public BookingForAnswerDto create(Long userId, BookingDto bookingDto) {
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
 
@@ -102,7 +102,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingForAnswerDto getBookingById(Long userId, Long bookingId) {
+    public BookingForAnswerDto getByUserIdAndBookingId(Long userId, Long bookingId) {
         checkUser(userId);
 
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(() ->
@@ -187,7 +187,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public void checkUser(Long userId) {
-        userStorage.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователь с id " + userId + " не найден"));
+        if (!userStorage.existsById(userId)) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
     }
 }

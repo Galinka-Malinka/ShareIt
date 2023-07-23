@@ -18,9 +18,9 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingForAnswerDto addBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @RequestBody BookingDto bookingDto) {
-        return bookingService.addBooking(userId, bookingDto);
+    public BookingForAnswerDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @RequestBody BookingDto bookingDto) {
+        return bookingService.create(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
@@ -31,9 +31,9 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingForAnswerDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @PathVariable Long bookingId) {
-        return bookingService.getBookingById(userId, bookingId);
+    public BookingForAnswerDto getByUserIdAndBookingId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                       @PathVariable Long bookingId) {
+        return bookingService.getByUserIdAndBookingId(userId, bookingId);
     }
 
     @GetMapping

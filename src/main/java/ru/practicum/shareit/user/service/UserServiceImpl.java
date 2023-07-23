@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public UserDto addUser(UserDto userDto) {
+    public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         try {
             return UserMapper.toUserDto(userStorage.saveAndFlush(user));
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(Long userId, UserDto userDto) {
+    public UserDto update(Long userId, UserDto userDto) {
         User foundUser = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь с id " + userId));
 
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDto getUserById(Long userId) {
+    public UserDto getById(Long userId) {
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         return UserMapper.toUserDto(user);
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(Long userId) {
+    public void deleteById(Long userId) {
         userStorage.deleteById(userId);
     }
 }
