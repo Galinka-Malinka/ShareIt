@@ -1,29 +1,49 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
+import java.util.Set;
 
 /**
  * TODO Sprint add-controllers.
  */
 
+@Entity
+@Table(name = "items")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item {
-    final Long id;
-    @NotNull(message = "Название предмету не заданно")
-    @NotBlank(message = "Название предмета не может состоять из пустой строки")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    @Column(name = "name", nullable = false)
     String name;
-    @NotNull(message = "Необходимо добавить описание предмета")
+
+    @Column(name = "description", nullable = false)
     String description;
-    @NotNull(message = "Необходимо указать id владельца")
-    final Long ownerId;
-    @NotNull(message = "Необходимо указать статус возможности бронирования предмета")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    User owner;
+
+    @Column(name = "is_available", nullable = false)
     boolean available;
+
+    @OneToMany
+    @JoinColumn(name = "item_id")
+    @ToString.Exclude
+    private Set<Booking> bookings;
+
+    @OneToMany
+    @JoinColumn(name = "item_id")
+    @ToString.Exclude
+    private Set<Comment> comments;
 }

@@ -19,19 +19,19 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
-        return userService.addUser(userDto);
+    public UserDto create(@Valid @RequestBody UserDto userDto) {
+        return userService.create(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId, @Valid @RequestBody UserDto userDto)
+    public UserDto update(@PathVariable Long userId, @RequestBody UserDto userDto)
             throws ValidationException {
-        return userService.updateUser(userId, userDto);
+        return userService.update(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Long userId) throws ValidationException {
-        return userService.getUserById(userId);
+    public UserDto getById(@PathVariable Long userId) throws ValidationException {
+        return userService.getById(userId);
     }
 
     @GetMapping
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@PathVariable Long userId) {
-        userService.deleteUserById(userId);
+    public void deleteById(@PathVariable Long userId) {
+        userService.deleteById(userId);
     }
 }

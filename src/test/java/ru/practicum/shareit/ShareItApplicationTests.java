@@ -1,8 +1,10 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -21,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ShareItApplicationTests {
 
     @Autowired
@@ -58,6 +62,12 @@ public class ShareItApplicationTests {
         mockMvc.perform(patch("/users/1")
                         .content(objectMapper.writeValueAsString(updatedUser))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("UpdatedUser"))
+                .andExpect(jsonPath("$.email").value("UpdatedUser@email.ru"));
+
+        mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("UpdatedUser"))
@@ -152,7 +162,8 @@ public class ShareItApplicationTests {
                 .andExpect(jsonPath("$.description").value("Description for updatedItem"))
                 .andExpect(jsonPath("$.available").value("false"));
 
-        mockMvc.perform(get("/items/1"))
+        mockMvc.perform(get("/items/1")
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("UpdatedItem"))
                 .andExpect(jsonPath("$.description").value("Description for updatedItem"))
@@ -164,7 +175,8 @@ public class ShareItApplicationTests {
         createUser(1);
         createItem(1, 1L);
 
-        mockMvc.perform(get("/items/1"))
+        mockMvc.perform(get("/items/1")
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Item1"))
                 .andExpect(jsonPath("$.description").value("Description for Item1"))
@@ -173,7 +185,6 @@ public class ShareItApplicationTests {
 
     @Test
     void shouldGetItemsUser() throws Exception {
-
         createUser(1);
         createUser(2);
 
@@ -191,7 +202,6 @@ public class ShareItApplicationTests {
 
     @Test
     void shouldGetItemsOnRequest() throws Exception {
-
         createUser(1); //пользователь 1
         createUser(2);  //пользователь 2
 
