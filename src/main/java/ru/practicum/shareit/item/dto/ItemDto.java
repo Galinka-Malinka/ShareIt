@@ -27,4 +27,6 @@ public class ItemDto {
 
     @NotNull(message = "Необходимо указать статус возможности бронирования предмета")
     Boolean available;
+
+    Long requestId;
 }

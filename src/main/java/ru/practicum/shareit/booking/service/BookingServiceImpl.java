@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
@@ -39,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Данный предмет не доступен для бронирования," +
-                    " т.к. рользователь не может забронировать собственный предмет");
+                    " т.к. пользователь не может забронировать собственный предмет");
         }
 
         if (!item.isAvailable()) {
@@ -116,31 +119,45 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingForAnswerDto> getBookingsByUser(Long userId, String state) {
+    public List<BookingForAnswerDto> getBookingsByUser(Long userId, String state, Integer from, Integer size) {
         checkUser(userId);
+        if (from < 0) {
+            throw new IllegalArgumentException("from не может быть меньше 0");
+        }
+
+        if (size < 1) {
+            throw new IllegalArgumentException("size не может быть меньше 1");
+        }
 
         List<Booking> bookings = new ArrayList<>();
+
+        int page = from / size;
+
+        Pageable sortedAndPageable =
+                PageRequest.of(page, size, Sort.by("start").descending());
 
         LocalDateTime timeNow = LocalDateTime.now();
 
         switch (state) {
             case "ALL":
-                bookings.addAll(bookingStorage.findByBookerIdOrderByStartDesc(userId));
+                bookings.addAll(bookingStorage.findAllByBookerId(userId, sortedAndPageable));
                 break;
             case "CURRENT":
-                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow));
+                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow, sortedAndPageable));
                 break;
             case "PAST":
-                bookings.addAll(bookingStorage.findByBookerIdAndEndInPast(userId, timeNow));
+                bookings.addAll(bookingStorage.findByBookerIdAndEndInPast(userId, timeNow, sortedAndPageable));
                 break;
             case "FUTURE":
-                bookings.addAll(bookingStorage.findByBookerIdAndStartInFuture(userId, timeNow));
+                bookings.addAll(bookingStorage.findByBookerIdAndStartInFuture(userId, timeNow, sortedAndPageable));
                 break;
             case "WAITING":
-                bookings.addAll(bookingStorage.findByBookerIdAndStatusContaining(userId, Status.WAITING));
+                bookings.addAll(bookingStorage
+                        .findByBookerIdAndStatusContaining(userId, Status.WAITING, sortedAndPageable));
                 break;
             case "REJECTED":
-                bookings.addAll(bookingStorage.findByBookerIdAndStatusContaining(userId, Status.REJECTED));
+                bookings.addAll(bookingStorage
+                        .findByBookerIdAndStatusContaining(userId, Status.REJECTED, sortedAndPageable));
                 break;
             default:
                 throw new ValidationException("Unknown state: " + state);
@@ -149,36 +166,48 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingForAnswerDto> getBookingsForOwnersItems(Long userId, String state) {
+    public List<BookingForAnswerDto> getBookingsForOwnersItems(Long userId, String state, Integer from, Integer size) {
         checkUser(userId);
-
-        if (itemStorage.findByOwnerIdOrderById(userId).isEmpty()) {
-            throw new NotFoundException("У пользователя с id " + userId + " нет предметов для шеринга");
+        if (from < 0) {
+            throw new IllegalArgumentException("from не может быть меньше 0");
         }
 
+        if (size < 1) {
+            throw new IllegalArgumentException("size не может быть меньше 1");
+        }
+        if (itemStorage.findByOwnerId(userId).isEmpty()) {
+            throw new NotFoundException("У пользователя с id " + userId + " нет предметов для шеринга");
+        }
         List<Booking> bookings = new ArrayList<>();
+
+        int page = from / size;
+
+        Pageable sortedAndPageable =
+                PageRequest.of(page, size, Sort.by("start").descending());
 
         LocalDateTime timeNow = LocalDateTime.now();
 
         switch (state) {
             case "ALL":
-                bookings.addAll(bookingStorage.getAllBookingsForOwnersItems(userId));
+                bookings.addAll(bookingStorage.getAllBookingsForOwnersItems(userId, sortedAndPageable));
                 break;
             case "CURRENT":
-                bookings.addAll(bookingStorage.getCurrentBookingsForOwnersItems(userId, timeNow, timeNow));
+                bookings.addAll(bookingStorage
+                        .getCurrentBookingsForOwnersItems(userId, timeNow, sortedAndPageable));
                 break;
             case "PAST":
-                bookings.addAll(bookingStorage.getPastBookingsForOwnersItems(userId, timeNow));
+                bookings.addAll(bookingStorage.getPastBookingsForOwnersItems(userId, timeNow, sortedAndPageable));
                 break;
             case "FUTURE":
-                bookings.addAll(bookingStorage.getFutureBookingsForOwnersItems(userId, timeNow));
+                bookings.addAll(bookingStorage.getFutureBookingsForOwnersItems(userId, timeNow, sortedAndPageable));
                 break;
             case "WAITING":
-                bookings.addAll(bookingStorage.getBookingsForOwnersWithStatusContaining(userId, Status.WAITING));
+                bookings.addAll(bookingStorage
+                        .getBookingsForOwnersWithStatusContaining(userId, Status.WAITING, sortedAndPageable));
                 break;
             case "REJECTED":
                 bookings.addAll(bookingStorage
-                        .getBookingsForOwnersWithStatusContaining(userId, Status.REJECTED));
+                        .getBookingsForOwnersWithStatusContaining(userId, Status.REJECTED, sortedAndPageable));
                 break;
             default:
                 throw new ValidationException("Unknown state: " + state);

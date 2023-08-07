@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.dto.ItemDetailedDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -20,11 +21,24 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
     public static ItemDto toItemDto(Item item) {
+        Long requestId = item.getRequest() != null ? item.getRequest().getId() : null;
+
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
+                .requestId(requestId)
+                .build();
+    }
+
+    public static Item toItemOnRequest(User user, ItemDto itemDto, ItemRequest request) {
+        return Item.builder()
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .owner(user)
+                .available(itemDto.getAvailable())
+                .request(request)
                 .build();
     }
 
