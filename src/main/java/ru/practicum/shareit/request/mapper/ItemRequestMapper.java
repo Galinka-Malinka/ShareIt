@@ -10,7 +10,6 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -36,14 +35,6 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public static List<ItemRequestDto> toItemRequestDtoList(List<ItemRequest> itemRequestList) {
-        List<ItemRequestDto> itemRequestDtoList = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequestList) {
-            itemRequestDtoList.add(toItemRequestDto(itemRequest));
-        }
-        return itemRequestDtoList;
-    }
-
     public static ItemRequestWithAnswersDto toItemRequestWithAnswersDto(ItemRequest itemRequest,
                                                                         List<ItemDto> answers) {
         return ItemRequestWithAnswersDto.builder()
@@ -53,5 +44,4 @@ public class ItemRequestMapper {
                 .items(answers)
                 .build();
     }
-
 }

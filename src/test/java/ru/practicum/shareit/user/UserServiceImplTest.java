@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -48,6 +49,9 @@ public class UserServiceImplTest {
         assertThat(user.getId(), notNullValue());
         assertThat(user.getName(), equalTo(userDto.getName()));
         assertThat(user.getEmail(), equalTo(userDto.getEmail()));
+
+        assertThrows(AlreadyExistsException.class, () -> userService.create(userDto),
+                "Пользователь с " + userDto.getEmail() + " уже зарегистрирован");
     }
 
     @Test
@@ -67,6 +71,10 @@ public class UserServiceImplTest {
         assertThat(updatedUser.getId(), notNullValue());
         assertThat(updatedUser.getName(), equalTo(userDtoForUpdate.getName()));
         assertThat(updatedUser.getEmail(), equalTo(userDtoForUpdate.getEmail()));
+
+        User user2 = createUser(2L);
+        assertThrows(AlreadyExistsException.class, () -> userService.update(user.getId(), UserMapper.toUserDto(user2)),
+                "Пользователь с " + user2.getEmail() + " уже зарегистрирован");
     }
 
     @Test
@@ -93,7 +101,6 @@ public class UserServiceImplTest {
 
         assertThat(users, notNullValue());
         assertThat(users, equalTo(checkList));
-
     }
 
     @Test

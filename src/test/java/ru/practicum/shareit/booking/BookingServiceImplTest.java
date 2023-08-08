@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
@@ -78,6 +77,39 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class, () -> bookingService.create(3L, bookingDto),
                 "Пользователь с id 3 не найден");
 
+        bookingDto.setStart(null);
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Необходимо указать дату начала аренды");
+        bookingDto.setStart(LocalDateTime.now().minusMinutes(1));
+        bookingDto.setEnd(null);
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Необходимо указать дату окончания аренды");
+        bookingDto.setEnd(LocalDateTime.now().minusDays(1));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Окончание аренды не может быть в прошлом");
+        bookingDto.setEnd(LocalDateTime.now().plusMinutes(1));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Начало аренды не может быть в прошлом");
+        bookingDto.setStart(LocalDateTime.now().plusMinutes(5));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Окончание аренды не может быть раньше её начала");
+
+        LocalDateTime time = LocalDateTime.now().plusSeconds(1);
+        bookingDto.setStart(time);
+        bookingDto.setEnd(time);
+
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Дата начала аренды должна отличаться от даты окончания аренды");
+
+        item.setAvailable(false);
+        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
+                "Предмет с id " + bookingDto.getItemId() + " в данный момент не доступен для аренды");
+
         bookingDto.setItemId(2L);
         assertThrows(NotFoundException.class, () -> bookingService.create(user2.getId(), bookingDto),
                 "Предмет с id " + bookingDto.getItemId() + " не найден");
@@ -104,18 +136,37 @@ public class BookingServiceImplTest {
         assertThat(bookingAfterConfirmation.getBooker(), equalTo(user2));
         assertThat(bookingAfterConfirmation.getStatus(), equalTo(Status.APPROVED));
 
-        assertThrows(ValidationException.class,
-                () -> bookingService.respondToBookingRequest(user1.getId(), booking.getId(), true),
-                "У предмета с id " + item.getId()
-                        + " уже установлен статус возможности бронирования");
+        Booking booking2 = createBooking(2L, item.getId(), user2.getId());
+
+        bookingService.respondToBookingRequest(user1.getId(), booking2.getId(), false);
+
+        TypedQuery<Booking> queryForItem2 = em.createQuery("Select b from Booking b where b.id = :id",
+                Booking.class);
+        Booking bookingAfterRefusal = queryForItem2.setParameter("id", booking2.getId()).getSingleResult();
+
+        assertThat(bookingAfterRefusal.getId(), notNullValue());
+        assertThat(bookingAfterRefusal.getStart(), equalTo(booking2.getStart()));
+        assertThat(bookingAfterRefusal.getEnd(), equalTo(booking2.getEnd()));
+        assertThat(bookingAfterRefusal.getItem(), equalTo(item));
+        assertThat(bookingAfterRefusal.getBooker(), equalTo(user2));
+        assertThat(bookingAfterRefusal.getStatus(), equalTo(Status.REJECTED));
 
         assertThrows(NotFoundException.class,
                 () -> bookingService.respondToBookingRequest(3L, booking.getId(), true),
                 "Пользователь с id 3 не найден");
 
         assertThrows(NotFoundException.class,
+                () -> bookingService.respondToBookingRequest(user2.getId(), 3L, true),
+                "Бронирование с id 3 не найдено");
+
+        assertThrows(NotFoundException.class,
                 () -> bookingService.respondToBookingRequest(user2.getId(), booking.getId(), true),
                 "Пользователь с id " + user2.getId() + "не является владельцем вещи с id ");
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.respondToBookingRequest(user1.getId(), booking.getId(), true),
+                "У предмета с id " + item.getId()
+                        + " уже установлен статус возможности бронирования");
     }
 
     @Test
@@ -134,6 +185,10 @@ public class BookingServiceImplTest {
         assertThat(bookingForAnswerDto, equalTo(BookingMapper.toBookingForAnswerDto(booking)));
 
         assertThrows(NotFoundException.class,
+                () -> bookingService.getByUserIdAndBookingId(4L, booking.getId()),
+                "Пользователь с id 4 не найден");
+
+        assertThrows(NotFoundException.class,
                 () -> bookingService.getByUserIdAndBookingId(user3.getId(), booking.getId()),
                 "Пользователь с id " + user3.getId() + "не имеет доступ к бронированию с id "
                         + booking.getId());
@@ -141,14 +196,10 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class,
                 () -> bookingService.getByUserIdAndBookingId(user2.getId(), 2L),
                 "Бронирование с id 2 не найдено");
-
-        assertThrows(NotFoundException.class,
-                () -> bookingService.getByUserIdAndBookingId(3L, booking.getId()),
-                "Пользователь с id 3 не найден");
     }
 
     @Test
-    void shouldGetBookingsByUser() {
+    void shouldGetBookingsByUser() throws InterruptedException {
         User user1 = createUser(1);
         Item item = createItem(1L, user1.getId(), null);
         User user2 = createUser(2);
@@ -178,9 +229,30 @@ public class BookingServiceImplTest {
         assertThat(list2, notNullValue());
         assertThat(list2, equalTo(checkList2));
 
-        assertThrows(NotFoundException.class,
-                () -> bookingService.getBookingsByUser(4L, "ALL", 3, 3),
-                "Пользователь с id 4 не найден");
+        Thread.sleep(2_000);
+
+        List<BookingForAnswerDto> list3 = bookingService
+                .getBookingsByUser(user2.getId(), "CURRENT", 0, 10);
+        assertThat(list3.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking2)));
+
+        List<BookingForAnswerDto> list4 = bookingService
+                .getBookingsByUser(user2.getId(), "PAST", 0, 10);
+        assertThat(list4.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking1)));
+
+        List<BookingForAnswerDto> list5 = bookingService
+                .getBookingsByUser(user2.getId(), "FUTURE", 0, 10);
+        assertThat(list5.size(), is(2));
+        assertThat(list5.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
+        assertThat(list5.get(1), equalTo(BookingMapper.toBookingForAnswerDto(booking3)));
+
+        List<BookingForAnswerDto> list6 = bookingService
+                .getBookingsByUser(user2.getId(), "WAITING", 0, 10);
+        assertThat(list6, equalTo(checkList1));
+
+        bookingService.respondToBookingRequest(user1.getId(), booking4.getId(), false);
+        List<BookingForAnswerDto> list7 = bookingService
+                .getBookingsByUser(user2.getId(), "REJECTED", 0, 10);
+        assertThat(list7.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
 
         assertThrows(IllegalArgumentException.class,
                 () -> bookingService.getBookingsByUser(user2.getId(), "ALL", -1, 10),
@@ -193,10 +265,15 @@ public class BookingServiceImplTest {
         assertThrows(ValidationException.class,
                 () -> bookingService.getBookingsByUser(user2.getId(), "EveryThing", 0, 20),
                 "Unknown state: EveryThing");
+
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.getBookingsByUser(4L, "ALL", 3, 3),
+                "Пользователь с id 4 не найден");
     }
 
     @Test
-    void shouldGetBookingsForOwnersItems() {
+    void shouldGetBookingsForOwnersItems() throws InterruptedException {
         User user1 = createUser(1);
         Item item1 = createItem(1L, user1.getId(), null);
         Item item2 = createItem(2L, user1.getId(), null);
@@ -231,9 +308,31 @@ public class BookingServiceImplTest {
         assertThat(list2, notNullValue());
         assertThat(list2, equalTo(checkList2));
 
-        assertThrows(NotFoundException.class,
-                () -> bookingService.getBookingsByUser(3L, "ALL", 5, 2),
-                "Пользователь с id 3 не найден");
+        Thread.sleep(2_000);
+
+        List<BookingForAnswerDto> list3 = bookingService
+                .getBookingsForOwnersItems(user1.getId(), "CURRENT", 0, 10);
+        assertThat(list3.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking2)));
+
+        List<BookingForAnswerDto> list4 = bookingService
+                .getBookingsForOwnersItems(user1.getId(), "PAST", 0, 10);
+        assertThat(list4.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking1)));
+
+        List<BookingForAnswerDto> list5 = bookingService
+                .getBookingsForOwnersItems(user1.getId(), "FUTURE", 0, 10);
+        assertThat(list5.size(), is(3));
+        assertThat(list5.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking5)));
+        assertThat(list5.get(1), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
+        assertThat(list5.get(2), equalTo(BookingMapper.toBookingForAnswerDto(booking3)));
+
+        List<BookingForAnswerDto> list6 = bookingService
+                .getBookingsForOwnersItems(user1.getId(), "WAITING", 0, 10);
+        assertThat(list6, equalTo(checkList1));
+
+        bookingService.respondToBookingRequest(user1.getId(), booking4.getId(), false);
+        List<BookingForAnswerDto> list7 = bookingService
+                .getBookingsForOwnersItems(user1.getId(), "REJECTED", 0, 10);
+        assertThat(list7.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
 
         assertThrows(IllegalArgumentException.class,
                 () -> bookingService.getBookingsForOwnersItems(user1.getId(), "ALL", -1, 10),
@@ -250,6 +349,10 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class,
                 () -> bookingService.getBookingsForOwnersItems(user2.getId(), "ALL", 0, 20),
                 "У пользователя с id " + user2.getId() + " нет предметов для шеринга");
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.getBookingsByUser(3L, "ALL", 5, 2),
+                "Пользователь с id 3 не найден");
     }
 
     public User createUser(int id) {

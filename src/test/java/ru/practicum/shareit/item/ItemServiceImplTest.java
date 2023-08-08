@@ -8,6 +8,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -143,14 +144,17 @@ public class ItemServiceImplTest {
         assertThrows(NotFoundException.class, () -> itemService.update(user.getId(), 5L, itemDto),
                 "Предмет с id 5 не найден");
 
+        User user2 = createUser(2);
+        assertThrows(NotFoundException.class, () -> itemService.update(user2.getId(), item.getId(), itemDto),
+                "У пользователя с id " + user2.getId() + " нет предмета с id " + item.getId());
     }
 
     @Test
-    void shouldGetByUserIdAndItemId() {
+    void shouldGetByUserIdAndItemId() throws InterruptedException {
         User user = createUser(1);
         Item item = createItem(1L, user.getId(), null);
 
-        ItemDetailedDto checkItemDetailedDto = ItemDetailedDto.builder()
+        ItemDetailedDto checkItemDetailedDto1 = ItemDetailedDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
@@ -162,17 +166,57 @@ public class ItemServiceImplTest {
 
         ItemDetailedDto itemDetailedDto = itemService.getByUserIdAndItemId(user.getId(), item.getId());
 
-        assertThat(itemDetailedDto, equalTo(checkItemDetailedDto));
+        assertThat(itemDetailedDto, equalTo(checkItemDetailedDto1));
 
         assertThrows(NotFoundException.class, () -> itemService.getByUserIdAndItemId(2L, item.getId()),
                 "Пользователь с id 2 не найден");
 
         assertThrows(NotFoundException.class, () -> itemService.getByUserIdAndItemId(user.getId(), 2L),
                 "Предмет с id 2 не найден");
+
+        User user2 = createUser(2);
+
+        BookingDto bookingDto1 = BookingDto.builder()
+                .id(1L)
+                .itemId(item.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusSeconds(1))
+                .end(LocalDateTime.now().plusSeconds(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto1);
+
+        BookingDto bookingDto2 = BookingDto.builder()
+                .id(2L)
+                .itemId(item.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto2);
+
+        ItemDetailedDto checkItemDetailedDto2 = ItemDetailedDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.isAvailable())
+                .lastBooking(bookingDto1)
+                .nextBooking(bookingDto2)
+                .comments(new ArrayList<>())
+                .build();
+
+        Thread.sleep(3_000);
+
+        ItemDetailedDto itemDetailedDto2 = itemService.getByUserIdAndItemId(user.getId(), item.getId());
+
+        assertThat(itemDetailedDto2, equalTo(checkItemDetailedDto2));
     }
 
     @Test
-    void shouldGetItemsUser() {
+    void shouldGetItemsUser() throws InterruptedException {
         User user = createUser(1);
         Item item1 = createItem(1L, user.getId(), null);
         Item item2 = createItem(2L, user.getId(), null);
@@ -180,9 +224,63 @@ public class ItemServiceImplTest {
         Item item4 = createItem(4L, user.getId(), null);
         Item item5 = createItem(5L, user.getId(), null);
 
+        User user2 = createUser(2);
+
+        BookingDto bookingDto1 = BookingDto.builder()
+                .id(1L)
+                .itemId(item1.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusSeconds(1))
+                .end(LocalDateTime.now().plusSeconds(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto1);
+
+        BookingDto bookingDto2 = BookingDto.builder()
+                .id(2L)
+                .itemId(item1.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto2);
+
+        BookingDto bookingDto3 = BookingDto.builder()
+                .id(3L)
+                .itemId(item2.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusSeconds(1))
+                .end(LocalDateTime.now().plusSeconds(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto3);
+        bookingDto3.setId(3L);
+
+        BookingDto bookingDto4 = BookingDto.builder()
+                .id(4L)
+                .itemId(item2.getId())
+                .bookerId(user2.getId())
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+
+        bookingService.create(user2.getId(), bookingDto4);
+        bookingDto4.setId(4L);
+
+        Thread.sleep(3_000);
+
+        ItemDetailedDto itemDetailedDto1 = itemService.getByUserIdAndItemId(user.getId(), item1.getId());
+
         List<ItemDetailedDto> checkList1 = new ArrayList<>();
-        checkList1.add(ItemMapper.toItemDetailedDto(item1, null, null, new ArrayList<>()));
-        checkList1.add(ItemMapper.toItemDetailedDto(item2, null, null, new ArrayList<>()));
+        checkList1.add(itemDetailedDto1);
+        checkList1.add(ItemMapper.toItemDetailedDto(item2,
+                BookingMapper.toBooking(bookingDto3, item2, user2, Status.WAITING),
+                BookingMapper.toBooking(bookingDto4, item2, user2, Status.WAITING), new ArrayList<>()));
         checkList1.add(ItemMapper.toItemDetailedDto(item3, null, null, new ArrayList<>()));
         checkList1.add(ItemMapper.toItemDetailedDto(item4, null, null, new ArrayList<>()));
         checkList1.add(ItemMapper.toItemDetailedDto(item5, null, null, new ArrayList<>()));
@@ -200,8 +298,8 @@ public class ItemServiceImplTest {
         assertThat(itemDetailedDtoList2, notNullValue());
         assertThat(itemDetailedDtoList2, equalTo(checkList2));
 
-        assertThrows(NotFoundException.class, () -> itemService.getItemsUser(2L, 0, 10),
-                "Пользователь с id 2 не найден");
+        assertThrows(NotFoundException.class, () -> itemService.getItemsUser(3L, 0, 10),
+                "Пользователь с id 3 не найден");
         assertThrows(IllegalArgumentException.class, () -> itemService.getItemsUser(user.getId(), -1, 10),
                 "from не может быть меньше 0");
         assertThrows(IllegalArgumentException.class, () -> itemService.getItemsUser(user.getId(), 0, 0),
@@ -239,6 +337,10 @@ public class ItemServiceImplTest {
                 "from не может быть меньше 0");
         assertThrows(IllegalArgumentException.class, () -> itemService.getItemsOnRequest("cool", 0, 0),
                 "size не может быть меньше 1");
+
+        List<ItemDto> itemDtoListEmpty = itemService.getItemsOnRequest("", 0, 10);
+        assertThat(itemDtoListEmpty.size(), is(0));
+
     }
 
     @Test
@@ -321,6 +423,10 @@ public class ItemServiceImplTest {
         assertThrows(ValidationException.class, () -> itemService.addComment(4L, item.getId(), commentDto1),
                 "Пользователь с id 4 не может оставить комментарий," +
                         " т.к. он не арендовал предмет с id " + item.getId());
+
+        commentDto1.setText("");
+        assertThrows(ValidationException.class, () -> itemService.addComment(user2.getId(), item.getId(), commentDto1),
+                "Необходимо ввести текст комментария");
 
         Item item2 = createItem(2L, user1.getId(), null);
         BookingDto bookingDto3 = BookingDto.builder()
