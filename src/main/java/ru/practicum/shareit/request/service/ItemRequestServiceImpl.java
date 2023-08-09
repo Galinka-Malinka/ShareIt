@@ -83,10 +83,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers);
     }
 
-    public List<ItemRequestWithAnswersDto> createItemRequestWithAnswersDtoList(List<ItemRequest> ItemRequestList) {
+    public List<ItemRequestWithAnswersDto> createItemRequestWithAnswersDtoList(List<ItemRequest> itemRequestList) {
         List<ItemRequestWithAnswersDto> result = new ArrayList<>();
 
-        for (ItemRequest itemRequest : ItemRequestList) {
+        for (ItemRequest itemRequest : itemRequestList) {
             List<ItemDto> answers = ItemMapper.toItemDtoList(itemStorage.findAllByRequestId(itemRequest.getId()));
             result.add(ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers));
         }
