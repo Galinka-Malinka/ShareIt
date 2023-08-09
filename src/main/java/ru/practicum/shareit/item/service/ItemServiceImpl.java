@@ -43,18 +43,6 @@ public class ItemServiceImpl implements ItemService {
 
     public ItemDto create(Long userId, ItemDto itemDto) {
 
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Необходимо указать статус бронирования при добавлении предмета");
-        }
-
-        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Необходимо указать название предмета");
-        }
-
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Необходимо добавить описание предмета");
-        }
-
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
 

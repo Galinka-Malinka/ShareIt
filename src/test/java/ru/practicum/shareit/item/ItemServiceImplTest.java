@@ -73,18 +73,6 @@ public class ItemServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> itemService.create(2L, itemDto),
                 "Пользователь с id 2 не найден");
-
-        ItemDto incorrectItemDto = ItemDto.builder().build();
-        assertThrows(ValidationException.class, () -> itemService.create(user.getId(), incorrectItemDto),
-                "Необходимо указать статус бронирования при добавлении предмета");
-
-        incorrectItemDto.setAvailable(true);
-        assertThrows(ValidationException.class, () -> itemService.create(user.getId(), incorrectItemDto),
-                "Необходимо указать название предмета");
-
-        incorrectItemDto.setName("Item");
-        assertThrows(ValidationException.class, () -> itemService.create(user.getId(), incorrectItemDto),
-                "Необходимо добавить описание предмета");
     }
 
     @Test

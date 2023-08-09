@@ -17,7 +17,6 @@ import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +33,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
 
-        if (itemRequestDto.getDescription() == null || itemRequestDto.getDescription().isBlank()) {
-            throw new ValidationException("Необходимо добавить описание предмета");
-        }
-
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(user, itemRequestDto);
-
         return ItemRequestMapper.toItemRequestDto(itemRequestStorage.save(itemRequest));
     }
 
@@ -51,13 +45,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<ItemRequest> itemRequestList = itemRequestStorage.findAllByRequestorIdOrderByCreatedDesc(userId);
 
-        List<ItemRequestWithAnswersDto> result = new ArrayList<>();
-
-        for (ItemRequest itemRequest : itemRequestList) {
-            List<ItemDto> answers = ItemMapper.toItemDtoList(itemStorage.findAllByRequestId(itemRequest.getId()));
-            result.add(ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers));
-        }
-        return result;
+        return createItemRequestWithAnswersDtoList(itemRequestList);
     }
 
     @Override
@@ -79,13 +67,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequest> allItemRequest =
                 itemRequestStorage.findAllByRequestorIdNot(userId, sortedByCreatedDesc);
 
-        List<ItemRequestWithAnswersDto> result = new ArrayList<>();
-
-        for (ItemRequest itemRequest : allItemRequest) {
-            List<ItemDto> answers = ItemMapper.toItemDtoList(itemStorage.findAllByRequestId(itemRequest.getId()));
-            result.add(ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers));
-        }
-        return result;
+        return createItemRequestWithAnswersDtoList(allItemRequest);
     }
 
     @Override
@@ -99,5 +81,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         List<ItemDto> answers = ItemMapper.toItemDtoList(itemStorage.findAllByRequestId(itemRequest.getId()));
         return ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers);
+    }
+
+    public List<ItemRequestWithAnswersDto> createItemRequestWithAnswersDtoList(List<ItemRequest> ItemRequestList) {
+        List<ItemRequestWithAnswersDto> result = new ArrayList<>();
+
+        for (ItemRequest itemRequest : ItemRequestList) {
+            List<ItemDto> answers = ItemMapper.toItemDtoList(itemStorage.findAllByRequestId(itemRequest.getId()));
+            result.add(ItemRequestMapper.toItemRequestWithAnswersDto(itemRequest, answers));
+        }
+        return result;
     }
 }

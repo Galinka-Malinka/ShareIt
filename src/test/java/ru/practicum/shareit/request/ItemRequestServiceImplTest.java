@@ -22,7 +22,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,12 +66,7 @@ public class ItemRequestServiceImplTest {
         assertThrows(NotFoundException.class, () -> itemRequestService.create(2L, itemRequestDto),
                 "Пользователь с id 2 не найден");
 
-        ItemRequestDto incorrectItemRequestDto = ItemRequestDto.builder()
-                .id(2L)
-                .created(LocalDateTime.now())
-                .build();
-        assertThrows(ValidationException.class, () -> itemRequestService.create(user.getId(), incorrectItemRequestDto),
-                "Необходимо добавить описание предмета");
+        assertThrows(NullPointerException.class, () -> ItemRequestMapper.toItemRequest(null, null));
     }
 
     @Test

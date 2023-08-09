@@ -14,13 +14,14 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
-    public static ItemDto toItemDto(Item item) {
+    public static ItemDto toItemDto(@NotNull Item item) {
         Long requestId = item.getRequest() != null ? item.getRequest().getId() : null;
 
         return ItemDto.builder()
@@ -32,7 +33,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItemOnRequest(User user, ItemDto itemDto, ItemRequest request) {
+    public static Item toItemOnRequest(@NotNull User user, @NotNull ItemDto itemDto, ItemRequest request) {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
@@ -42,7 +43,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItem(User user, ItemDto itemDto) {
+    public static Item toItem(@NotNull User user, @NotNull ItemDto itemDto) {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
@@ -59,7 +60,7 @@ public class ItemMapper {
         return itemDtoList;
     }
 
-    public static ItemDetailedDto toItemDetailedDto(Item item, Booking lastBooking, Booking nextBooking,
+    public static ItemDetailedDto toItemDetailedDto(@NotNull Item item, Booking lastBooking, Booking nextBooking,
                                                     List<Comment> comments) {
 
         BookingDto last = lastBooking != null ? BookingMapper.toBookingDto(lastBooking) : null;
@@ -76,7 +77,6 @@ public class ItemMapper {
                 .comments(commentDtoList)
                 .build();
     }
-
 
     public static Comment toComment(CommentDto commentDto, User author, Item item) {
         return Comment.builder()

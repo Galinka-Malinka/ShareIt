@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
 
-    public static Booking toBooking(BookingDto bookingDto, Item item, User booker, Status status) {
+    public static Booking toBooking(@NotNull BookingDto bookingDto, @NotNull Item item,
+                                    @NotNull User booker, @NotNull Status status) {
         return Booking.builder()
                 .id(bookingDto.getId())
                 .start(bookingDto.getStart())
@@ -30,7 +32,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingDto toBookingDto(Booking booking) {
+    public static BookingDto toBookingDto(@NotNull Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .itemId(booking.getItem().getId())
@@ -41,7 +43,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingForAnswerDto toBookingForAnswerDto(Booking booking) {
+    public static BookingForAnswerDto toBookingForAnswerDto(@NotNull Booking booking) {
         return BookingForAnswerDto.builder()
                 .id(booking.getId())
                 .itemDto(ItemMapper.toItemDto(booking.getItem()))

@@ -9,6 +9,7 @@ import ru.practicum.shareit.request.dto.ItemRequestWithAnswersDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemRequestMapper {
 
-    public static ItemRequest toItemRequest(User user, ItemRequestDto itemRequestDto) {
+    public static ItemRequest toItemRequest(@NotNull User user, @NotNull ItemRequestDto itemRequestDto) {
         LocalDateTime created = itemRequestDto.getCreated() != null ? itemRequestDto.getCreated() : LocalDateTime.now();
 
         return ItemRequest.builder()
@@ -27,7 +28,8 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
+    public static ItemRequestDto toItemRequestDto(@NotNull ItemRequest itemRequest) {
+
         return ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
@@ -35,7 +37,7 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public static ItemRequestWithAnswersDto toItemRequestWithAnswersDto(ItemRequest itemRequest,
+    public static ItemRequestWithAnswersDto toItemRequestWithAnswersDto(@NotNull ItemRequest itemRequest,
                                                                         List<ItemDto> answers) {
         return ItemRequestWithAnswersDto.builder()
                 .id(itemRequest.getId())

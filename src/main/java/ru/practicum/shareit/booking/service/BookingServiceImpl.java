@@ -54,7 +54,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (bookingDto.getEnd() == null) {
-            System.out.println("!!!!!!!!!!!!!!!!bookingDto.getEnd() == null");
             throw new ValidationException("Необходимо указать дату окончания аренды");
         }
 
