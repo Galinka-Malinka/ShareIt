@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.validation.Valid;
 
 @Controller
-@RequestMapping(path = "/items")
+@RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
@@ -22,7 +22,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody UserDto userDto) {
         log.info("Creating User {}", userDto);
-        return userClient.create(userDto);
+        return userClient.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")

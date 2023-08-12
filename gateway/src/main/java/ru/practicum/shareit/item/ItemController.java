@@ -28,7 +28,7 @@ public class ItemController {
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @Valid @RequestBody ItemDto itemDto) {
         log.info("Creating Item {}, userId={}", itemDto, userId);
-        return itemClient.create(userId, itemDto);
+        return itemClient.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")

@@ -25,7 +25,7 @@ public class ItemRequestController {
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Creating ItemRequest {}, userId={}", itemRequestDto, userId);
-        return itemRequestClient.create(userId, itemRequestDto);
+        return itemRequestClient.createItemRequest(userId, itemRequestDto);
     }
 
     @GetMapping
