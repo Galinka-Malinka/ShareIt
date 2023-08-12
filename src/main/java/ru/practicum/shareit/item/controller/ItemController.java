@@ -7,7 +7,8 @@ import ru.practicum.shareit.item.dto.ItemDetailedDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
-import java.util.Collection;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -19,13 +20,13 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto) {
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                              @RequestBody ItemDto itemDto) {
+                          @RequestBody ItemDto itemDto) {
         return itemService.update(userId, itemId, itemDto);
     }
 
@@ -36,13 +37,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDetailedDto> getItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItemsUser(userId);
+    public List<ItemDetailedDto> getItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                              @RequestParam(required = false, defaultValue = "0") Integer from,
+                                              @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return itemService.getItemsUser(userId, from, size);
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> getItemsOnRequest(@RequestParam(value = "text") String text) {
-        return itemService.getItemsOnRequest(text);
+    public List<ItemDto> getItemsOnRequest(@RequestParam(value = "text") String text,
+                                           @RequestParam(required = false, defaultValue = "0") Integer from,
+                                           @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return itemService.getItemsOnRequest(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

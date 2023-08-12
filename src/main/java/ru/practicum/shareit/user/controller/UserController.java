@@ -7,7 +7,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<UserDto> getUsers() {
+    public List<UserDto> getUsers() {
         return userService.getUsers();
     }
 

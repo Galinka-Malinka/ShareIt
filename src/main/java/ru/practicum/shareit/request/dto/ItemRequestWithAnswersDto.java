@@ -4,19 +4,18 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-
-/**
- * TODO Sprint add-item-requests.
- */
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemRequestDto {
+public class ItemRequestWithAnswersDto {
 
     Long id;
 
@@ -25,5 +24,7 @@ public class ItemRequestDto {
     String description;
 
     LocalDateTime created;
+
+    List<ItemDto> items = new ArrayList<>();
 
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.item.dto.ItemDetailedDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -25,100 +26,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ShareItApplicationTests {
+public class ItemControllerTest {
 
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
-
-    @Test
-    void shouldCreateUser() throws Exception {
-
-        User user = User.builder()
-                .name("User")
-                .email("User@email.ru")
-                .build();
-
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(user))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.name").value("User"))
-                .andExpect(jsonPath("$.email").value("User@email.ru"));
-    }
-
-    @Test
-    void shouldUpdateUser() throws Exception {
-        createUser(1);
-
-        User updatedUser = User.builder()
-                .id(1L)
-                .name("UpdatedUser")
-                .email("UpdatedUser@email.ru")
-                .build();
-
-        mockMvc.perform(patch("/users/1")
-                        .content(objectMapper.writeValueAsString(updatedUser))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.name").value("UpdatedUser"))
-                .andExpect(jsonPath("$.email").value("UpdatedUser@email.ru"));
-
-        mockMvc.perform(get("/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.name").value("UpdatedUser"))
-                .andExpect(jsonPath("$.email").value("UpdatedUser@email.ru"));
-    }
-
-    @Test
-    void shouldGetUserById() throws Exception {
-        createUser(1);
-
-        mockMvc.perform(get("/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.name").value("User1"))
-                .andExpect(jsonPath("$.email").value("User1@email.ru"));
-    }
-
-    @Test
-    void shouldGetUsers() throws Exception {
-        createUser(1);
-
-        User newUser1 = User.builder()
-                .id(1L)
-                .name("User1")
-                .email("User1@email.ru")
-                .build();
-
-        createUser(2);
-
-        User newUser2 = User.builder()
-                .id(2L)
-                .name("User2")
-                .email("User2@email.ru")
-                .build();
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(newUser1, newUser2))));
-    }
-
-    @Test
-    void shouldDeleteUserById() throws Exception {
-        createUser(1);
-
-        mockMvc.perform(delete("/users/1"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(new ArrayList<>())));
-    }
 
     @Test
     void shouldCreateItem() throws Exception {
@@ -189,15 +102,36 @@ public class ShareItApplicationTests {
         createUser(2);
 
         ItemDto itemDto1 = createItem(1, 1L);
+        ItemDetailedDto itemDetailedDto1 = ItemDetailedDto.builder()
+                .id(itemDto1.getId())
+                .name(itemDto1.getName())
+                .description(itemDto1.getDescription())
+                .available(itemDto1.getAvailable())
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(new ArrayList<>())
+                .build();
 
         ItemDto itemDto2 = createItem(2, 1L);
+        ItemDetailedDto itemDetailedDto2 = ItemDetailedDto.builder()
+                .id(itemDto2.getId())
+                .name(itemDto2.getName())
+                .description(itemDto2.getDescription())
+                .available(itemDto2.getAvailable())
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(new ArrayList<>())
+                .build();
 
-        ItemDto itemDto3 = createItem(3, 2L);
+        createItem(3, 2L);
 
         mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", 1L))
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(itemDto1, itemDto2))));
+                .andExpect(content()
+                        .json(objectMapper.writeValueAsString(Arrays.asList(itemDetailedDto1, itemDetailedDto2))));
     }
 
     @Test
@@ -266,7 +200,9 @@ public class ShareItApplicationTests {
         itemDtoOwner5.setId(6L);
 
         mockMvc.perform(get("/items/search")
-                        .param("text", "cool"))
+                        .param("text", "cool")
+                        .param("from", "0")
+                        .param("size", "20"))
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .json(objectMapper.writeValueAsString(Set.of(itemDtoOwner1, itemDtoOwner4, itemDtoOwner2))));
@@ -282,6 +218,7 @@ public class ShareItApplicationTests {
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+        user.setId((long) number);
     }
 
     public ItemDto createItem(int number, Long userId) throws Exception {
