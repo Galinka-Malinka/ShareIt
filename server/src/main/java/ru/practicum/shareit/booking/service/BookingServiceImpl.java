@@ -135,6 +135,8 @@ public class BookingServiceImpl implements BookingService {
 
         Pageable sortedAndPageable =
                 PageRequest.of(page, size, Sort.by("start").descending());
+        Pageable sortedAndPageableByCurrent =
+                PageRequest.of(page, size, Sort.by("start"));
 
         LocalDateTime timeNow = LocalDateTime.now();
 
@@ -143,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings.addAll(bookingStorage.findAllByBookerId(userId, sortedAndPageable));
                 break;
             case "CURRENT":
-                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow, sortedAndPageable));
+                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow, sortedAndPageableByCurrent));
                 break;
             case "PAST":
                 bookings.addAll(bookingStorage.findByBookerIdAndEndInPast(userId, timeNow, sortedAndPageable));

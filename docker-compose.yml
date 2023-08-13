@@ -31,7 +31,7 @@ version: '3.8'
 services:
   gateway:
     build: gateway/
-    container_name: shareit_gateway
+    container_name: gateway
     ports:
       - "8080:8080"
     depends_on: [ server ]
@@ -40,7 +40,7 @@ services:
 
   server:
     build: server/
-    container_name: shareit_server
+    container_name: server
     ports:
       - "9090:9090"
     depends_on: [ db ]

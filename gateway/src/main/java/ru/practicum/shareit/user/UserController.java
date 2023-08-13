@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserForUpdateDto;
 
 import javax.validation.Valid;
 
@@ -27,7 +28,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> update(@PathVariable Long userId,
-                                         @Valid @RequestBody UserDto userDto) {
+                                         @RequestBody UserDto userDto) {
         log.info("Updating userId={}, userDto {}", userId, userDto);
         return userClient.update(userId, userDto);
     }

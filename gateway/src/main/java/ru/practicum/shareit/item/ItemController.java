@@ -34,7 +34,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @PathVariable Long itemId,
-                                         @Valid @RequestBody ItemDto itemDto) {
+                                         @RequestBody ItemDto itemDto) {
         log.info("Updating ItemId={}, userId={}, itemDto {}", itemId, userId, itemDto);
         return itemClient.update(userId, itemId, itemDto);
     }
@@ -57,7 +57,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> getItemsOnRequest(@NotNull @NotBlank @RequestParam(value = "text") String text,
+    public ResponseEntity<Object> getItemsOnRequest(@NotNull @RequestParam(value = "text") String text,
                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
                                                     Integer from,
                                                     @Positive @RequestParam(name = "size", defaultValue = "10")
