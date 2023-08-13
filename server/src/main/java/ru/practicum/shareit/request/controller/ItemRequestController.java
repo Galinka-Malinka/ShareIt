@@ -22,7 +22,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @Valid @RequestBody ItemRequestDto itemRequestDto) {
+                                 @RequestBody ItemRequestDto itemRequestDto) {
         return itemRequestService.create(userId, itemRequestDto);
     }
 
@@ -33,8 +33,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestWithAnswersDto> get(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                               @RequestParam(required = false, defaultValue = "10") @Min(1) Integer size) {
+                                               @RequestParam(required = false, defaultValue = "0") Integer from,
+                                               @RequestParam(required = false, defaultValue = "10") Integer size) {
         return itemRequestService.get(userId, from, size);
 
     }
