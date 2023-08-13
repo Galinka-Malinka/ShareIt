@@ -122,14 +122,6 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDetailedDto> getItemsUser(Long userId, Integer from, Integer size) {
         checkUser(userId);
 
-//        if (from < 0) {
-//            throw new IllegalArgumentException("from не может быть меньше 0");
-//        }
-//
-//        if (size < 1) {
-//            throw new IllegalArgumentException("size не может быть меньше 1");
-//        }
-
         int page = from / size;
 
         List<ItemDetailedDto> itemDetailedDtoList = new ArrayList<>();
@@ -170,16 +162,7 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
 
-//        if (from < 0) {
-//            throw new IllegalArgumentException("from не может быть меньше 0");
-//        }
-//
-//        if (size < 1) {
-//            throw new IllegalArgumentException("size не может быть меньше 1");
-//        }
-
         int page = from / size;
-
 
         return ItemMapper.toItemDtoList(itemStorage.getItemOnRequest(text,
                 PageRequest.of(page, size, Sort.by("id").ascending())));
@@ -188,9 +171,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
-//        if (commentDto.getText() == null || commentDto.getText().isBlank()) {
-//            throw new ValidationException("Необходимо ввести текст комментария");
-//        }
 
         User user = userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));

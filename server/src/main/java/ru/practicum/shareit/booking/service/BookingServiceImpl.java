@@ -49,30 +49,6 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Предмет с id " + item.getId() + " в данный момент не доступен для аренды");
         }
 
-//        if (bookingDto.getStart() == null) {
-//            throw new ValidationException("Необходимо указать дату начала аренды");
-//        }
-//
-//        if (bookingDto.getEnd() == null) {
-//            throw new ValidationException("Необходимо указать дату окончания аренды");
-//        }
-//
-//        if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
-//            throw new ValidationException("Окончание аренды не может быть в прошлом");
-//        }
-//
-//        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
-//            throw new ValidationException("Начало аренды не может быть в прошлом");
-//        }
-
-//        if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
-//            throw new ValidationException("Окончание аренды не может быть раньше её начала");
-//        }
-//
-//        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
-//            throw new ValidationException("Дата начала аренды должна отличаться от даты окончания аренды");
-//        }
-
         Booking booking = BookingMapper.toBooking(bookingDto, item, user, Status.WAITING);
 
         return BookingMapper.toBookingForAnswerDto(bookingStorage.save(booking));
@@ -121,13 +97,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingForAnswerDto> getBookingsByUser(Long userId, String state, Integer from, Integer size) {
         checkUser(userId);
-//        if (from < 0) {
-//            throw new IllegalArgumentException("from не может быть меньше 0");
-//        }
-//
-//        if (size < 1) {
-//            throw new IllegalArgumentException("size не может быть меньше 1");
-//        }
 
         List<Booking> bookings = new ArrayList<>();
 
@@ -145,7 +114,8 @@ public class BookingServiceImpl implements BookingService {
                 bookings.addAll(bookingStorage.findAllByBookerId(userId, sortedAndPageable));
                 break;
             case "CURRENT":
-                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow, sortedAndPageableByCurrent));
+                bookings.addAll(bookingStorage.findCurrentBookingsByBookerId(userId, timeNow,
+                        sortedAndPageableByCurrent));
                 break;
             case "PAST":
                 bookings.addAll(bookingStorage.findByBookerIdAndEndInPast(userId, timeNow, sortedAndPageable));
@@ -161,8 +131,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings.addAll(bookingStorage
                         .findByBookerIdAndStatusContaining(userId, Status.REJECTED, sortedAndPageable));
                 break;
-//            default:
-//                throw new ValidationException("Unknown state: " + state);
         }
         return BookingMapper.toBookingForAnswerDtoList(bookings);
     }
@@ -170,13 +138,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingForAnswerDto> getBookingsForOwnersItems(Long userId, String state, Integer from, Integer size) {
         checkUser(userId);
-//        if (from < 0) {
-//            throw new IllegalArgumentException("from не может быть меньше 0");
-//        }
-//
-//        if (size < 1) {
-//            throw new IllegalArgumentException("size не может быть меньше 1");
-//        }
         if (itemStorage.findByOwnerId(userId).isEmpty()) {
             throw new NotFoundException("У пользователя с id " + userId + " нет предметов для шеринга");
         }
@@ -211,8 +172,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings.addAll(bookingStorage
                         .getBookingsForOwnersWithStatusContaining(userId, Status.REJECTED, sortedAndPageable));
                 break;
-//            default:
-//                throw new ValidationException("Unknown state: " + state);
         }
         return BookingMapper.toBookingForAnswerDtoList(bookings);
     }

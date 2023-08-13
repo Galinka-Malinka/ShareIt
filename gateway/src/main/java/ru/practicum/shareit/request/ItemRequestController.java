@@ -40,7 +40,6 @@ public class ItemRequestController {
                                       @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Get itemRequests with requestorId={}, from={}, size={}", userId, from, size);
         return itemRequestClient.get(userId, from, size);
-
     }
 
     @GetMapping("/{requestId}")

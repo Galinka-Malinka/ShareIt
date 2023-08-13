@@ -77,35 +77,6 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class, () -> bookingService.create(3L, bookingDto),
                 "Пользователь с id 3 не найден");
 
-        bookingDto.setStart(null);
-
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Необходимо указать дату начала аренды");
-//        bookingDto.setStart(LocalDateTime.now().minusMinutes(1));
-//        bookingDto.setEnd(null);
-//
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Необходимо указать дату окончания аренды");
-//        bookingDto.setEnd(LocalDateTime.now().minusDays(1));
-//
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Окончание аренды не может быть в прошлом");
-//        bookingDto.setEnd(LocalDateTime.now().plusMinutes(1));
-//
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Начало аренды не может быть в прошлом");
-//        bookingDto.setStart(LocalDateTime.now().plusMinutes(5));
-//
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Окончание аренды не может быть раньше её начала");
-
-//        LocalDateTime time = LocalDateTime.now().plusSeconds(1);
-//        bookingDto.setStart(time);
-//        bookingDto.setEnd(time);
-//
-//        assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
-//                "Дата начала аренды должна отличаться от даты окончания аренды");
-
         item.setAvailable(false);
         assertThrows(ValidationException.class, () -> bookingService.create(user2.getId(), bookingDto),
                 "Предмет с id " + bookingDto.getItemId() + " в данный момент не доступен для аренды");
@@ -254,19 +225,6 @@ public class BookingServiceImplTest {
                 .getBookingsByUser(user2.getId(), "REJECTED", 0, 10);
         assertThat(list7.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
 
-//        assertThrows(IllegalArgumentException.class,
-//                () -> bookingService.getBookingsByUser(user2.getId(), "ALL", -1, 10),
-//                "from не может быть меньше 0");
-//
-//        assertThrows(IllegalArgumentException.class,
-//                () -> bookingService.getBookingsByUser(user2.getId(), "ALL", 1, 0),
-//                "size не может быть меньше 1");
-//
-//        assertThrows(ValidationException.class,
-//                () -> bookingService.getBookingsByUser(user2.getId(), "EveryThing", 0, 20),
-//                "Unknown state: EveryThing");
-
-
         assertThrows(NotFoundException.class,
                 () -> bookingService.getBookingsByUser(4L, "ALL", 3, 3),
                 "Пользователь с id 4 не найден");
@@ -333,18 +291,6 @@ public class BookingServiceImplTest {
         List<BookingForAnswerDto> list7 = bookingService
                 .getBookingsForOwnersItems(user1.getId(), "REJECTED", 0, 10);
         assertThat(list7.get(0), equalTo(BookingMapper.toBookingForAnswerDto(booking4)));
-
-//        assertThrows(IllegalArgumentException.class,
-//                () -> bookingService.getBookingsForOwnersItems(user1.getId(), "ALL", -1, 10),
-//                "from не может быть меньше 0");
-//
-//        assertThrows(IllegalArgumentException.class,
-//                () -> bookingService.getBookingsForOwnersItems(user1.getId(), "ALL", 1, 0),
-//                "size не может быть меньше 1");
-
-//        assertThrows(ValidationException.class,
-//                () -> bookingService.getBookingsForOwnersItems(user1.getId(), "EveryThing", 0, 20),
-//                "Unknown state: EveryThing");
 
         assertThrows(NotFoundException.class,
                 () -> bookingService.getBookingsForOwnersItems(user2.getId(), "ALL", 0, 20),

@@ -12,10 +12,8 @@ import ru.practicum.shareit.booking.dto.BookingState;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.Optional;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -32,14 +30,8 @@ public class BookingController {
                                               Integer from,
                                               @Positive @RequestParam(name = "size", defaultValue = "10")
                                               Integer size) {
-        //BookingState state = BookingState.from(stateParam);
-        Optional<BookingState> optionalBookingState = BookingState.from(stateParam);
-
-        if (optionalBookingState.isEmpty()) {
-            throw new IllegalArgumentException("Unknown state: " + stateParam);
-        }
-        BookingState state = optionalBookingState.get();
-                //.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+        BookingState state = BookingState.from(stateParam)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, state, from, size);
     }
@@ -63,12 +55,12 @@ public class BookingController {
                                            @RequestBody @Valid BookItemRequestDto requestDto) {
 
         if (requestDto.getStart().isAfter(requestDto.getEnd())) {
-                    throw new ValidationException("Окончание аренды не может быть раньше её начала");
-                }
+            throw new ValidationException("Окончание аренды не может быть раньше её начала");
+        }
 
-                if (requestDto.getStart().equals(requestDto.getEnd())) {
-                    throw new ValidationException("Дата начала аренды должна отличаться от даты окончания аренды");
-                }
+        if (requestDto.getStart().equals(requestDto.getEnd())) {
+            throw new ValidationException("Дата начала аренды должна отличаться от даты окончания аренды");
+        }
 
         log.info("Creating booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);

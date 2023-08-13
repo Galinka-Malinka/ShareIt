@@ -143,10 +143,6 @@ public class ItemRequestServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> itemRequestService.get(3L, 0, 3),
                 "Пользователь с id 3 не найден");
-//        assertThrows(IllegalArgumentException.class, () -> itemRequestService.get(user2.getId(), -1, 3),
-//                "from не может быть меньше 0");
-//        assertThrows(IllegalArgumentException.class, () -> itemRequestService.get(user2.getId(), 0, 0),
-//                "size не может быть меньше 1");
     }
 
     @Test
@@ -217,6 +213,4 @@ public class ItemRequestServiceImplTest {
                 ItemRequest.class);
         return queryForItemRequest.setParameter("id", id).getSingleResult();
     }
-
-
 }
