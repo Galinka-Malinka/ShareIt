@@ -38,7 +38,7 @@ public class ItemRequestController {
     public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                       @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        log.info("Get itemRequests with requestorId={}, from={}, size={}", userId, from, size);
+        log.info("Get itemRequests with requesterId={}, from={}, size={}", userId, from, size);
         return itemRequestClient.get(userId, from, size);
     }
 

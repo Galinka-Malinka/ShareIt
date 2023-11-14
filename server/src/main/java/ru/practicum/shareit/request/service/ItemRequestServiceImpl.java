@@ -43,7 +43,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
-        List<ItemRequest> itemRequestList = itemRequestStorage.findAllByRequestorIdOrderByCreatedDesc(userId);
+        List<ItemRequest> itemRequestList = itemRequestStorage.findAllByRequesterIdOrderByCreatedDesc(userId);
 
         return createItemRequestWithAnswersDtoList(itemRequestList);
     }
@@ -65,7 +65,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 PageRequest.of(from, size, Sort.by("created").descending());
 
         List<ItemRequest> allItemRequest =
-                itemRequestStorage.findAllByRequestorIdNot(userId, sortedByCreatedDesc);
+                itemRequestStorage.findAllByRequesterIdNot(userId, sortedByCreatedDesc);
 
         return createItemRequestWithAnswersDtoList(allItemRequest);
     }

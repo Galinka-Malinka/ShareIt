@@ -10,7 +10,7 @@ import java.util.List;
 public interface ItemRequestStorage extends JpaRepository<ItemRequest, Long>,
         PagingAndSortingRepository<ItemRequest, Long> {
 
-    List<ItemRequest> findAllByRequestorIdOrderByCreatedDesc(Long userId);
+    List<ItemRequest> findAllByRequesterIdOrderByCreatedDesc(Long userId);
 
-    List<ItemRequest> findAllByRequestorIdNot(Long userId, Pageable pageable);
+    List<ItemRequest> findAllByRequesterIdNot(Long userId, Pageable pageable);
 }

@@ -29,7 +29,7 @@ public class ItemRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    User requestor;
+    User requester;
 
     @Column(name = "created", nullable = false)
     LocalDateTime created;
