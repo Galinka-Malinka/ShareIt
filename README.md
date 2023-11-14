@@ -1,7 +1,7 @@
 <div id="header" align="center">
 
 # ShareIt
-![Изображение приложения](image.png)
+![Изображение приложения](picture.png)
 
 </div>
 
